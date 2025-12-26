@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+
+# Testing / tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# App runtime artifacts
+.bounty_hive_cache/
+reports/
+sbom.json
+bounty-hive-enterprise.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+
+# Secrets (never commit)
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+reports/
+.bounty_hive_cache/
+dist/
+build/
+*.egg-info/
+sbom.json
+evidence.zip

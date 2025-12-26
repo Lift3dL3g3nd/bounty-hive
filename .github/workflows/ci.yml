@@ -1,0 +1,48 @@
+name: Bounty Hive CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m venv .venv
+          . .venv/bin/activate
+          pip install -r requirements.txt -r requirements-dev.txt
+          pip install -e .
+
+      - name: Lint
+        run: |
+          . .venv/bin/activate
+          ruff check bounty_hive
+
+      - name: Type check
+        run: |
+          . .venv/bin/activate
+          mypy bounty_hive
+
+      - name: Tests
+        run: |
+          . .venv/bin/activate
+          pytest -q
+
+      - name: Dependency audit
+        run: |
+          . .venv/bin/activate
+          pip-audit
+
+      - name: SBOM
+        run: |
+          . .venv/bin/activate
+          cyclonedx-py -o sbom.json

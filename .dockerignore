@@ -1,0 +1,12 @@
+.venv
+__pycache__
+.pytest_cache
+reports
+.bounty_hive_cache
+*.pyc
+*.pyo
+*.pyd
+.git
+dist
+build
+*.egg-info
