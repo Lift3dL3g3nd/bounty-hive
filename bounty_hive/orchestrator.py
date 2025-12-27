@@ -316,3 +316,12 @@ def scan_repo(path: Path) -> list[Finding]:
     write_scan_reports(findings, out_dir=Path("reports"))
 
     return findings
+
+
+def deduplicate_findings(findings: list[Finding]) -> list[Finding]:
+    seen = {}
+    for f in findings:
+        key = (f.tool, f.rule_id, f.file_path, f.line)
+        if key not in seen:
+            seen[key] = f
+    return list(seen.values())
