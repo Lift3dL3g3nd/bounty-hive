@@ -12,13 +12,15 @@ from .auth import User, can
 from .evidence import write_evidence_index
 from .llm import LLMClient
 from .models import Action, Context
-from .passive_tools import resolve_a_records, whois
+from .passive_tools import resolve_a_records, whois, scan_python_repo
 from .receipts import sign_scope_receipt
 from .reporting import render_report_json, render_report_md
 from .safety import SafetyGuard
 from pathlib import Path
 from .passive_tools import run_bandit, normalize_bandit_findings
 from .audit_log import AuditLog
+from pathlib import Path
+from .reporting import write_scan_reports
 
 
 @dataclass
@@ -301,34 +303,16 @@ class Orchestrator:
         from .cache import PolicyCache
 
         return PolicyCache.url_key(self.ctx.program_url)
-def scan_repo(repo_path: Path, reports_dir: Path, audit_log: AuditLog) -> None:
-    """
-    Run passive security scans against a repository.
-    Currently: Bandit only.
-    """
-    reports_dir.mkdir(parents=True, exist_ok=True)
 
-    bandit_json = run_bandit(repo_path, reports_dir)
-    findings = normalize_bandit_findings(bandit_json)
 
-    md_report = reports_dir / "bandit_findings.md"
+from .findings import Finding
+from .passive_tools import scan_python_repo
 
-    with md_report.open("w", encoding="utf-8") as f:
-        f.write("# Bandit Findings\n\n")
-        if not findings:
-            f.write("No issues found.\n")
-        else:
-            for i, finding in enumerate(findings, start=1):
-                f.write(f"## Finding {i}\n")
-                for k, v in finding.items():
-                    f.write(f"- **{k}**: `{v}`\n")
-                f.write("\n")
 
-    audit_log.append(
-        event="scan_repo_bandit",
-        actor="system",
-        details={
-            "repo": str(repo_path),
-            "findings_count": len(findings),
-        },
-    )
+def scan_repo(path: Path) -> list[Finding]:
+    findings = scan_python_repo(path)
+
+    # Write scan reports (distinct from policy reports)
+    write_scan_reports(findings, out_dir=Path("reports"))
+
+    return findings

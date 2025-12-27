@@ -64,9 +64,7 @@ class GenericAdapter:
             det.get("safe_harbor_language")
         )
 
-        pol.allowances.automated_testing_allowed = not det.get(
-            "no_automated_scanning_language"
-        )
+        pol.allowances.automated_testing_allowed = not det.get("no_automated_scanning_language")
         pol.allowances.active_scanning_allowed = False
         pol.requires_human_scope_confirmation = True
 

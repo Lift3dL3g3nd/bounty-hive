@@ -7,7 +7,9 @@ class PolicyAdapter(Protocol):
     name: str
 
     def supports(self, url: str) -> bool: ...
-    def normalize(self, url: str, html: str, fetched_at_utc: str, html_cache_path: str) -> NormalizedPolicy: ...
+    def normalize(
+        self, url: str, html: str, fetched_at_utc: str, html_cache_path: str
+    ) -> NormalizedPolicy: ...
 
 
 class AdapterRegistry:
