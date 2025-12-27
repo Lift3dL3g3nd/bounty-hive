@@ -28,6 +28,15 @@ def _build_parser() -> argparse.ArgumentParser:
         "--audit-log", default=".bounty_hive_cache/audit.log.jsonl", help="Audit log path (JSONL)."
     )
 
+scan = subparsers.add_parser("scan", help="Run passive security scans")
+scan_sub = scan.add_subparsers(dest="scan_target", required=True)
+
+scan_repo = scan_sub.add_parser("repo", help="Scan a repository")
+scan_repo.add_argument(
+    "path",
+    help="Path to the repository to scan",
+)
+
     sub = p.add_subparsers(dest="cmd", required=True)
 
     run = sub.add_parser("run", help="Run planner for one or more program URLs.")

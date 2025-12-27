@@ -4,6 +4,10 @@ import shutil
 import socket
 import subprocess
 from typing import Any
+import json
+import subprocess
+from pathlib import Path
+from typing import Any
 
 
 def resolve_a_records(domain: str) -> dict[str, Any]:
@@ -30,3 +34,30 @@ def whois(domain_or_ip: str) -> dict[str, Any]:
     except Exception as e:
         results["error"] = str(e)
     return results
+def run_bandit(repo_path: Path, output_dir: Path) -> Path:
+    """
+    Run Bandit in JSON mode against a repository.
+    Read-only, no execution.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    out_file = output_dir / "bandit_findings.json"
+
+    cmd = [
+        "bandit",
+        "-r",
+        str(repo_path),
+        "-f",
+        "json",
+        "-o",
+        str(out_file),
+    ]
+
+    subprocess.run(
+        cmd,
+        check=False,  # Bandit exits non-zero if it finds issues
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+    return out_file

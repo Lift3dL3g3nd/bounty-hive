@@ -16,6 +16,9 @@ from .passive_tools import resolve_a_records, whois
 from .receipts import sign_scope_receipt
 from .reporting import render_report_json, render_report_md
 from .safety import SafetyGuard
+from pathlib import Path
+from .passive_tools import run_bandit, normalize_bandit_findings
+from .audit_log import AuditLog
 
 
 @dataclass
@@ -298,3 +301,34 @@ class Orchestrator:
         from .cache import PolicyCache
 
         return PolicyCache.url_key(self.ctx.program_url)
+def scan_repo(repo_path: Path, reports_dir: Path, audit_log: AuditLog) -> None:
+    """
+    Run passive security scans against a repository.
+    Currently: Bandit only.
+    """
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    bandit_json = run_bandit(repo_path, reports_dir)
+    findings = normalize_bandit_findings(bandit_json)
+
+    md_report = reports_dir / "bandit_findings.md"
+
+    with md_report.open("w", encoding="utf-8") as f:
+        f.write("# Bandit Findings\n\n")
+        if not findings:
+            f.write("No issues found.\n")
+        else:
+            for i, finding in enumerate(findings, start=1):
+                f.write(f"## Finding {i}\n")
+                for k, v in finding.items():
+                    f.write(f"- **{k}**: `{v}`\n")
+                f.write("\n")
+
+    audit_log.append(
+        event="scan_repo_bandit",
+        actor="system",
+        details={
+            "repo": str(repo_path),
+            "findings_count": len(findings),
+        },
+    )

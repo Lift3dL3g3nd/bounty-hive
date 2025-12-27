@@ -1,46 +1,60 @@
-# Python
+# ======================
+# Python core
+# ======================
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *.so
+
+# ======================
+# Virtual environments
+# ======================
+.venv/
+venv/
+ENV/
+env/
+
+# ======================
+# Packaging / build
+# ======================
 *.egg-info/
 dist/
 build/
+pip-wheel-metadata/
 
-# Virtual environments
-.venv/
-venv/
-
-# Testing / tooling
+# ======================
+# Testing / linting
+# ======================
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.tox/
 
-# App runtime artifacts
+# ======================
+# Application runtime artifacts
+# ======================
 .bounty_hive_cache/
 reports/
-sbom.json
-bounty-hive-enterprise.zip
+AUDITBUNDLE.zip.gz
+MANIFEST.sha256
+*.zip
+*.gz
+*.pdf
 
-# OS / editor
+# ======================
+# OS / editor junk
+# ======================
 .DS_Store
 Thumbs.db
 *.swp
 *.swo
 *.bak
+*~
 
+# ======================
 # Secrets (never commit)
+# ======================
 .env
 .env.*
-.venv/
-__pycache__/
-*.pyc
-.pytest_cache/
-reports/
-.bounty_hive_cache/
-dist/
-build/
-*.egg-info/
-sbom.json
-evidence.zip
