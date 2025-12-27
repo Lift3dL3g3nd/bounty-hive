@@ -83,3 +83,78 @@ def render_report_json(ctx: Context) -> str:
         "llm_suggestions": ctx.llm_suggestions,
     }
     return json.dumps(d, indent=2, sort_keys=True)
+
+
+from .findings import Finding
+
+
+def render_findings_json(findings: list[Finding]) -> str:
+    import json
+
+    return json.dumps([f.__dict__ for f in findings], indent=2)
+
+
+def render_findings_md(findings: list[Finding]) -> str:
+    lines = ["# Security Findings\n"]
+    for f in findings:
+        lines.append(f"## {f.title}")
+        lines.append(f"- Tool: {f.tool}")
+        lines.append(f"- Severity: {f.severity}")
+        if f.file_path:
+            lines.append(f"- File: {f.file_path}:{f.line}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+
+from .findings import Finding
+
+
+def _scan_timestamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
+
+
+def write_scan_reports(
+    findings: list[Finding],
+    out_dir: Path = Path("reports"),
+) -> tuple[Path, Path]:
+    """
+    Write security scan findings to JSON and Markdown reports.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    ts = _scan_timestamp()
+
+    json_path = out_dir / f"scan_{ts}.json"
+    md_path = out_dir / f"scan_{ts}.md"
+
+    # JSON report
+    json_path.write_text(
+        json.dumps([f.__dict__ for f in findings], indent=2),
+        encoding="utf-8",
+    )
+
+    # Markdown report
+    lines: list[str] = []
+    lines.append("# Security Scan Report")
+    lines.append("")
+    lines.append(f"- Generated at (UTC): `{ts}`")
+    lines.append(f"- Total findings: **{len(findings)}**")
+    lines.append("")
+
+    for f in findings:
+        lines.append(f"## {f.title or f.rule_id}")
+        lines.append(f"- Tool: `{f.tool}`")
+        lines.append(f"- Severity: **{f.severity}**")
+        if f.file_path:
+            lines.append(f"- Location: `{f.file_path}:{f.line}`")
+        if f.description:
+            lines.append("")
+            lines.append(f.description)
+        lines.append("")
+
+    md_path.write_text("\n".join(lines), encoding="utf-8")
+
+    return json_path, md_path
