@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-import json
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .models import PublicFinding
 
 from .models import Context
 
@@ -94,9 +97,9 @@ def render_findings_json(findings: list[Finding]) -> str:
     return json.dumps([f.__dict__ for f in findings], indent=2)
 
 
-def render_findings_md(findings: list[Finding]) -> str:
-    lines = ["# Security Findings\n"]
+def render_findings_md(findings: list["PublicFinding"]) -> str:
     for f in findings:
+        lines = ["# Security Findings\n"]
         lines.append(f"## {f.title}")
         lines.append(f"- Tool: {f.tool}")
         lines.append(f"- Severity: {f.severity}")

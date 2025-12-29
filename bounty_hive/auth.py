@@ -12,8 +12,14 @@ class User:
 
 PERMISSIONS: Final[dict[str, set[str]]] = {
     "viewer": {"read"},
-    "analyst": {"read", "normalize"},
-    "lead": {"read", "normalize", "confirm_scope"},
+    "analyst": {"read", "normalize", "generate_sealed_findings"},
+    "lead": {
+        "read",
+        "normalize",
+        "confirm_scope",
+        "generate_sealed_findings",
+        "reveal_sealed_findings",
+    },
     "compliance": {"read", "export", "audit"},
     "admin": {"*"},
 }

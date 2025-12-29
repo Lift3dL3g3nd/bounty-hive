@@ -20,4 +20,3 @@
 - human_notes:
   - Scope confirmed by v (role admin) ticket=N/A
   - Scope confirmed by v (role admin) ticket=N/A
-
