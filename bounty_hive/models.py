@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .schema import NORMALIZED_POLICY_SCHEMA_VERSION
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -32,9 +33,13 @@ class PolicyConstraints:
 # ----------------------------------------------------------------------
 
 
+from dataclasses import dataclass, field
+from .schema import NORMALIZED_POLICY_SCHEMA_VERSION
+
+
 @dataclass
 class NormalizedPolicy:
-    # Identity / provenance
+    # --- Identity / provenance ---
     program_url: str
     platform_hint: str
     program_title: str
@@ -42,19 +47,25 @@ class NormalizedPolicy:
     adapter_used: str
     source_html_cache_path: str
 
-    # Content
+    # --- Content ---
     raw_text_fingerprint: str
     rules_excerpt: str
 
-    # Scope
-    in_scope: List[ScopeTarget]
-    out_of_scope: List[ScopeTarget]
+    # --- Scope ---
+    in_scope: list[ScopeTarget]
+    out_of_scope: list[ScopeTarget]
 
-    # Constraints
+    # --- Constraints ---
     constraints: PolicyConstraints
 
-    # Governance
+    # --- Governance ---
     requires_human_scope_confirmation: bool
+
+    # --- Schema (keyword-only, defaulted, non-positional) ---
+    schema_version: int = field(
+        default=NORMALIZED_POLICY_SCHEMA_VERSION,
+        kw_only=True,
+    )
 
 
 # ----------------------------------------------------------------------
