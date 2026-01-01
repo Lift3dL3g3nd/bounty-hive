@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .adapters.base import AdapterRegistry
@@ -40,7 +40,8 @@ def normalize_policy(
     else:
         html = fetch_html(url, html_path)
 
-    fetched_at_utc = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    # --- FIXED: timezone-aware UTC (no deprecation warning) ---
+    fetched_at_utc = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
     # --- Adapter selection ---
     reg = AdapterRegistry()
