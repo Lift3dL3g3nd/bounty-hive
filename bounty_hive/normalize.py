@@ -39,5 +39,6 @@ def normalize_policy(
     if ovs:
         pol = apply_overrides(pol, ovs)
 
-    cache.save(pol)
+    cache.save(pol, url)
+
     return pol, "fresh+overrides" if ovs else "fresh"

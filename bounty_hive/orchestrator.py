@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Tuple
+import json
 
 from .audit_log import AuditLog
 from .auth import User, can
@@ -53,18 +54,23 @@ class Orchestrator:
         # --------------------------------------------------
         # PASSIVE TOOLS (NO ATTACKS, NO ACTIVE SCANNING)
         # --------------------------------------------------
-
         try:
             if self.ctx.policy:
                 targets = self.ctx.policy.in_scope
             else:
                 targets = []
 
-            findings.extend(resolve_a_records(targets))
-            findings.extend(whois(targets))
+            # DNS + WHOIS are informational only
+            for target in targets:
+                resolve_a_records(target)
+                whois(target)
 
-            raw = run_bandit(Path.cwd())
-            findings.extend(normalize_bandit_findings(raw))
+            # Bandit scan
+            bandit_out = run_bandit(Path.cwd(), self.cfg.cache_dir)
+            with bandit_out.open("r", encoding="utf-8") as fh:
+                data = json.load(fh)
+
+            findings.extend(normalize_bandit_findings(data))
 
         except Exception as e:
             self.audit.append(
@@ -77,7 +83,6 @@ class Orchestrator:
         # --------------------------------------------------
         # AI ANALYSIS (GUARDED)
         # --------------------------------------------------
-
         public_findings = []
         sealed_refs = []
 

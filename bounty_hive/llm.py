@@ -9,7 +9,7 @@ import requests
 @dataclass
 class LLMConfig:
     backend: str  # mock | ollama
-    model: str
+    model: ollama
     timeout_s: int = 60
 
 

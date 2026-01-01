@@ -21,14 +21,14 @@ def soup_text(html: str) -> tuple[str, str]:
 def classify_target(raw: str, source: str = "parsed") -> ScopeTarget:
     s = (raw or "").strip().lstrip("-•* ").strip()
     if _URL_RE.search(s):
-        return ScopeTarget(value=s, type="url", source=source)
+        return ScopeTarget(value=s, target_type="url")
     if _EVM_ADDR_RE.match(s):
-        return ScopeTarget(value=s, type="contract", source=source)
+        return ScopeTarget(value=s, target_type="contract")
     if _DOMAIN_RE.match(s):
         if s.startswith("*."):
-            return ScopeTarget(value=s, type="wildcard_domain", source=source)
-        return ScopeTarget(value=s, type="domain", source=source)
-    return ScopeTarget(value=s, type="unknown", source=source)
+            return ScopeTarget(value=s, target_type="wildcard_domain")
+        return ScopeTarget(value=s, target_type="domain")
+    return ScopeTarget(value=s, target_type="unknown")
 
 
 def find_domains_loose(text: str) -> list[str]:

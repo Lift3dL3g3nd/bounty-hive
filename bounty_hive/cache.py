@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
 
@@ -31,12 +32,15 @@ class PolicyCache:
         if not p.exists():
             return None
         try:
-            d = json.loads(p.read_text(encoding="utf-8"))
-            return NormalizedPolicy.from_json(d)
+            data = json.loads(p.read_text(encoding="utf-8"))
+            return NormalizedPolicy(**data)
         except Exception:
             return None
 
-    def save(self, policy: NormalizedPolicy) -> Path:
-        p = self.policy_path(policy.program_url)
-        p.write_text(json.dumps(policy.to_json(), indent=2, sort_keys=True), encoding="utf-8")
+    def save(self, policy: NormalizedPolicy, program_url: str) -> Path:
+        p = self.policy_path(program_url)
+        p.write_text(
+            json.dumps(asdict(policy), indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
         return p

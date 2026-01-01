@@ -60,3 +60,12 @@ Thumbs.db
 .env
 .env.*
 *.save
+
+# Generated reports
+*.sarif
+results.sarif
+bounty_hive/results.sarif
+
+# Local artifacts
+__pycache__/
+.pytest_cache/

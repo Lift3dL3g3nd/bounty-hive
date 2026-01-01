@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ..fetch import fingerprint_text
-from ..models import NormalizedPolicy, ScopeTarget
+from ..models import NormalizedPolicy, ScopeTarget, PolicyConstraints
 from ..parse_common import (
     classify_target,
     detect_constraints,
@@ -24,51 +24,56 @@ class GenericAdapter:
         fetched_at_utc: str,
         html_cache_path: str,
     ) -> NormalizedPolicy:
+        # --- Parse text ---
         title, text = soup_text(html)
         rules = extract_rules_excerpt(text)
-        det = detect_constraints(text)
 
-        pol = NormalizedPolicy(
-            program_url=url,
-            platform_hint=self._hint(url),
-            program_title=title,
-            fetched_at_utc=fetched_at_utc,
-            adapter_used=self.name,
-            source_html_cache_path=html_cache_path,
+        # --- Constraint detection (AI + deterministic fallback) ---
+        detected = detect_constraints(text) or {}
+        low = text.lower()
+
+        prohibits_automated = (
+            detected.get("prohibits_automated_scanning_language_detected")
+            or "no scanning" in low
+            or "no automated" in low
+            or "no automated tools" in low
         )
 
-        pol.rules_excerpt = rules
-        pol.raw_text_fingerprint = fingerprint_text(text)
+        constraints = PolicyConstraints(
+            prohibits_automated_scanning_language_detected=bool(prohibits_automated),
+            prohibits_exploitation_language_detected=bool(
+                detected.get("prohibits_exploitation_language_detected")
+            ),
+            requires_safe_harbor_language_detected=bool(
+                detected.get("safe_harbor_language_detected") or "safe harbor" in low
+            ),
+        )
 
+        # --- Scope extraction ---
         domains = find_domains_loose(text)
         scope: list[ScopeTarget] = []
 
         for d in domains:
             if d.startswith("*."):
-                scope.append(
-                    ScopeTarget(
-                        value=d,
-                        type="wildcard_domain",
-                        source="parsed",
-                    )
-                )
+                scope.append(ScopeTarget(d, "wildcard_domain"))
             else:
                 scope.append(classify_target(d, "parsed"))
 
-        pol.in_scope = scope[:250]
-
-        pol.constraints.prohibits_automated_scanning_language_detected = bool(
-            det.get("no_automated_scanning_language")
+        # --- Final normalized policy ---
+        return NormalizedPolicy(
+            program_url=url,
+            platform_hint=self._hint(url),
+            program_title=title.strip() if title else "Example Program Policy",
+            fetched_at_utc=fetched_at_utc,
+            adapter_used=self.name,
+            source_html_cache_path=html_cache_path,
+            raw_text_fingerprint=fingerprint_text(text),
+            rules_excerpt=rules,
+            in_scope=scope[:250],
+            out_of_scope=[],
+            constraints=constraints,
+            requires_human_scope_confirmation=True,
         )
-        pol.constraints.requires_safe_harbor_language_detected = bool(
-            det.get("safe_harbor_language")
-        )
-
-        pol.allowances.automated_testing_allowed = not det.get("no_automated_scanning_language")
-        pol.allowances.active_scanning_allowed = False
-        pol.requires_human_scope_confirmation = True
-
-        return pol
 
     def _hint(self, url: str) -> str:
         u = (url or "").lower()
