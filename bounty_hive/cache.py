@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 from typing import Optional
+from .schema import SUPPORTED_NORMALIZED_POLICY_VERSIONS
 
 from .models import NormalizedPolicy
 
@@ -33,6 +34,11 @@ class PolicyCache:
             return None
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
+
+            version = data.get("schema_version")
+            if version not in SUPPORTED_NORMALIZED_POLICY_VERSIONS:
+                raise ValueError(f"Unsupported NormalizedPolicy schema_version: {version}")
+
             return NormalizedPolicy(**data)
         except Exception:
             return None

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from ..fetch import fingerprint_text
 from ..models import NormalizedPolicy, ScopeTarget, PolicyConstraints
+from ..schema import NORMALIZED_POLICY_SCHEMA_VERSION
 from ..parse_common import (
     classify_target,
     detect_constraints,
@@ -61,6 +62,7 @@ class GenericAdapter:
 
         # --- Final normalized policy ---
         return NormalizedPolicy(
+            schema_version=NORMALIZED_POLICY_SCHEMA_VERSION,
             program_url=url,
             platform_hint=self._hint(url),
             program_title=title.strip() if title else "Example Program Policy",
