@@ -1,39 +1,102 @@
-# Bounty Hive Enterprise (Kali-safe)
+# Bounty-Hive Core
 
-Passive-only, compliance-first policy normalizer + evidence system.
+**Bounty-Hive Core** is a security-focused disclosure and audit platform designed to
+safely handle vulnerability findings without exposing exploit material.
 
-## Enterprise controls
-- RBAC (viewer/analyst/lead/compliance/admin)
-- Scope confirmation lock (lead/admin only) + ticket/justification required
-- Signed scope confirmation receipts (Ed25519)
-- Tamper-evident audit log (hash-chained JSONL) + `audit-verify`
-- Evidence Index auto-generated (`docs/EVIDENCE_INDEX.md`)
-- Audit bundle export (ZIP + `MANIFEST.sha256`), includes docs/receipts by default if present
-- Pluggable policy adapters (registry + generic adapter)
+This repository contains the **Core trust layer only**.
 
-## Kali prerequisites (GUI + whois)
-```bash
-sudo apt update
-sudo apt install -y python3-tk whois
-```
+It is intentionally limited in scope.
 
-## Quickstart
-```bash
-python3 bounty_hive_enterprise_gen_v2.py
-cd bounty-hive
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-pip install -e .
-pytest -q
+---
 
-bounty-hive --help
-bounty-hive gui --user alice --role lead
-```
+## What This Project Is
 
-## Safety posture
-- No scanning, exploitation, brute force, DoS, or social engineering
-- Passive DNS resolve + WHOIS only, and only after:
-  - lead/admin scope confirmation + signed receipt
-  - explicit per-action approval (unless `--yes` used)
+Bounty-Hive Core provides:
+
+- Deterministic audit trails for security findings
+- Hash-chained, verifiable disclosure records
+- Role-based visibility controls
+- State-gated workflows (`created → validated → approved → delivered`)
+- Redaction-by-design for sensitive artifacts
+- Structured, deterministic reporting (e.g. SARIF)
+- Proof of custody and non-access guarantees
+
+The goal is to answer questions like:
+
+- *When was this finding created?*
+- *Who had access to it, and when?*
+- *Has it been modified?*
+- *Was sensitive material ever exposed prematurely?*
+
+All answers are cryptographically verifiable.
+
+---
+
+## What This Project Is NOT
+
+Bounty-Hive Core **does NOT**:
+
+- Perform autonomous vulnerability discovery
+- Execute exploits or proof-of-concept payloads
+- Generate weaponized exploit code
+- Perform scanning beyond basic, policy-safe analysis
+- Bypass authentication, authorization, or safeguards
+- Replace manual security testing methodologies
+
+This repository contains **no exploit logic**.
+
+---
+
+## Architecture Overview
+
+Bounty-Hive is intentionally split into two projects:
+
+### 🧱 Bounty-Hive Core (this repository)
+- Public, auditable, trust-focused
+- Handles custody, auditability, visibility, and disclosure
+- Safe for open-source review
+
+### 🔒 Bounty-Hive Engine (not public)
+- Paid, gated, and private
+- Performs advanced vulnerability discovery and validation
+- Never exposes weaponized artifacts to end users
+- Integrated via strict, auditable interfaces
+
+The Engine is **not included** in this repository.
+
+---
+
+## Security & Disclosure Philosophy
+
+Sensitive vulnerability material must be treated as hazardous.
+
+Bounty-Hive Core enforces:
+- Least-privilege access
+- Deterministic redaction
+- Immutable audit checkpoints
+- Explicit consent and approval gates
+
+No exploit artifacts are ever exposed by default.
+
+---
+
+## Intended Use
+
+This project is intended for:
+- Responsible vulnerability disclosure
+- Bug bounty workflow validation
+- Auditability and compliance research
+- Secure reporting pipelines
+
+All usage must comply with:
+- Target program scope
+- Applicable laws
+- Ethical security research practices
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+See `LICENSE` for details.

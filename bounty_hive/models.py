@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from .schema import NORMALIZED_POLICY_SCHEMA_VERSION
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional
 
+from .schema import NORMALIZED_POLICY_SCHEMA_VERSION
 
 # ----------------------------------------------------------------------
 # Scope
@@ -33,10 +33,6 @@ class PolicyConstraints:
 # ----------------------------------------------------------------------
 
 
-from dataclasses import dataclass, field
-from .schema import NORMALIZED_POLICY_SCHEMA_VERSION
-
-
 @dataclass
 class NormalizedPolicy:
     # --- Identity / provenance ---
@@ -52,8 +48,8 @@ class NormalizedPolicy:
     rules_excerpt: str
 
     # --- Scope ---
-    in_scope: list[ScopeTarget]
-    out_of_scope: list[ScopeTarget]
+    in_scope: List[ScopeTarget]
+    out_of_scope: List[ScopeTarget]
 
     # --- Constraints ---
     constraints: PolicyConstraints
@@ -84,3 +80,34 @@ class Context:
     actor: str
     role: str
     policy: Optional[NormalizedPolicy] = None
+
+
+# ----------------------------------------------------------------------
+# Findings (Visibility-Safe Models)
+# ----------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class PublicFinding:
+    """
+    User-visible, redacted finding.
+    MUST NOT contain exploit steps, payloads, or reproduction code.
+    Safe for CLI output, SARIF export, and public repositories.
+    """
+
+    finding_id: str
+    title: str
+    severity: str
+    summary: str
+    affected_component: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class SealedFindingRef:
+    """
+    Opaque reference to sealed / sensitive artifacts.
+    Used for audit, custody, and entitlement checks only.
+    """
+
+    finding_id: str
+    artifact_hash: str
