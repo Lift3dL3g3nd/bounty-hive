@@ -9,6 +9,15 @@ It is intentionally limited in scope.
 
 ---
 
+## Core Stability
+
+- Core freeze: `v0.1.1-core-freeze`
+- Post-freeze hardening: `v0.1.2-core-hardened`
+
+See:
+- `CORE_STABILITY_NOTE.md`
+- `PLATFORM_INVARIANTS.md`
+
 ## What This Project Is
 
 Bounty-Hive Core provides:
