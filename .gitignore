@@ -69,3 +69,11 @@ bounty_hive/results.sarif
 # Local artifacts
 __pycache__/
 .pytest_cache/
+
+# accidental prose / shell artifacts
+*versioning*
+*policy*
+*represents*
+*established*
+*change policy*
+*WHAT_THIS_TOOL*
