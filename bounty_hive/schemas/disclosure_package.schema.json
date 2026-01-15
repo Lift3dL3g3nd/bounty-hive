@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bounty-hive.io/schemas/disclosure_package.schema.json",
+  "title": "Bounty-Hive Disclosure Package",
+  "description": "Canonical, non-weaponized disclosure artifact produced by the Bounty-Hive Engine and consumed by Bounty-Hive Core. Content may be redacted prior to purchase.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "package_id",
+    "engine_run_id",
+    "created_at",
+    "state",
+    "scope",
+    "summary",
+    "severity",
+    "artifacts",
+    "redaction",
+    "audit"
+  ],
+  "properties": {
+    "package_id": {
+      "type": "string",
+      "description": "Globally unique identifier for this disclosure package (UUIDv7 recommended)."
+    },
+    "engine_run_id": {
+      "type": "string",
+      "description": "Identifier for the engine execution that produced this package."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp when the package was created."
+    },
+    "state": {
+      "type": "string",
+      "enum": ["created", "validated", "approved", "purchased", "delivered"],
+      "description": "Lifecycle state enforced by Core."
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["program_id", "assets"],
+      "properties": {
+        "program_id": {
+          "type": "string",
+          "description": "Bounty-Hive program identifier."
+        },
+        "assets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "In-scope assets only. No discovery outside declared scope."
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "High-level, non-exploitative summary suitable for pre-purchase viewing."
+    },
+    "severity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rating", "confidence"],
+      "properties": {
+        "rating": {
+          "type": "string",
+          "enum": ["informational", "low", "medium", "high", "critical"]
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Engine confidence score (0.0–1.0)."
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hashes"],
+      "properties": {
+        "hashes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["artifact_type", "sha256"],
+            "properties": {
+              "artifact_type": {
+                "type": "string",
+                "description": "e.g. sarif, evidence_graph, repro_harness (if allowed)."
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$",
+                "description": "SHA-256 hash of the artifact content."
+              }
+            }
+          }
+        }
+      }
+    },
+    "redaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "reason"],
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["none", "partial", "full"]
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why content is redacted (e.g., pre-purchase, policy)."
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_snapshot_hash", "engine_signature"],
+      "properties": {
+        "policy_snapshot_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "Hash of the policy snapshot enforced during generation."
+        },
+        "engine_signature": {
+          "type": "string",
+          "description": "Detached signature attesting to package integrity."
+        }
+      }
+    }
+  }
+}
